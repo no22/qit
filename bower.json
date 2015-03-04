@@ -1,0 +1,41 @@
+{
+  "name": "qit",
+  "version": "0.9.1",
+  "description": "a small iterator library for ES5/ES6 providing lazy operations on iterator/generator compatible with ES6 iterator protocol.",
+  "main": "qit.js",
+  "ignore": [
+    "**/.*",
+    "test",
+    "node_modules"
+  ],
+  "keywords": [
+    "lazy",
+    "infinite",
+    "sequence",
+    "iterator",
+    "generator",
+    "underscore",
+    "lodash",
+    "es6",
+    "es5"
+  ],
+  "author": {
+    "name": "Hiroyuki OHARA",
+    "email": "hiroyuki.no22@gmail.com",
+    "url": "https://github.com/no22"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/no22/qit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/no22/qit.git"
+  },
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "private": false,
+  "dependencies": {},
+  "devDependencies": {}
+}
