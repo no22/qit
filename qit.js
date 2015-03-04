@@ -5,11 +5,11 @@
  * providing lazy operations on iterator/generator
  * compatible with ES6 iterator protocol.
  *
- * @version 0.9.0
+ * @version 0.9.1
  * @author Hiroyuki OHARA <Hiroyuki.no22@gmail.com>
  * @see https://github.com/no22/qit
  */
-/*! qit.js v0.9.0 (c) 2015 Hiroyuki OHARA @license MIT */
+/*! qit.js v0.9.1 (c) 2015 Hiroyuki OHARA @license MIT */
 (function (root, globalName, factory) {
   if (typeof define === "function" && define.amd) {
     define([], factory);
@@ -70,30 +70,32 @@
 
   // Iterator
   function Iterator(iter, func, last) {
+    var ret = null;
     if (func !== undefined) {
       if (typeof(func) === "function") {
-        this.iter = new FollowIterator(iter, func);
+        ret = new FollowIterator(iter, func);
       } else if (typeof iter === "number" && typeof func === "number") {
-        this.iter = new RangeIterator(iter, func, last);
+        ret = new RangeIterator(iter, func, last);
       }
     } else if (iter instanceof Iterator) {
       iter.rewind();
-      return iter;
+      ret = iter;
     } else if (typeof iter === "string") {
-      this.iter = new StringIterator(iter);
+      ret = new StringIterator(iter);
     } else if (Array.isArray(iter)) {
-      this.iter = new ArrayIterator(iter);
+      ret = new ArrayIterator(iter);
     } else if (isPlainObject(iter)) {
       if (iter.next && typeof iter.next === "function") {
         this.iter = iter;
       } else {
-        this.iter = new ObjectIterator(iter);
+        ret = new ObjectIterator(iter);
       }
     } else if (iter[symb.iterator]) {
       this.iter = iter[symb.iterator].call(iter);
     } else {
       this.iter = iter;
     }
+    if (ret) return ret;
     this.rewind();
   }
 
@@ -217,7 +219,7 @@
         return {done: true};
       }
       var key = this.keys[this.idx++];
-      return {value: {key: key, value: this.obj[key]}, done: false};
+      return {value: [ key, this.obj[key] ], done: false};
     }
   });
 
