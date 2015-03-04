@@ -9,10 +9,36 @@ Getting started
 
 qit.js has no external dependencies and is only 8kb minified.
 
+### Installation :
+
+```
+$ bower install qit
+```
+
+or
+
+```
+$ npm install qit
+```
+
 ### In Browsers supporting ES5 / ES6 :
 
 ```html
 <script src="path/to/qit.min.js"></script>
+```
+
+### AMD Loader (require.js) :
+
+```javascript
+require(['./qit.min.js'], function (qit) {
+  // ...
+});
+```
+
+### Node.js :
+
+```javascript
+var qit = require('qit');
 ```
 
 Example
@@ -103,7 +129,7 @@ var a = qit("ABCDE");
 ```javascript
 // qit(plain_object)
 var a = qit({a:1, b:2, c:3});
-// {key: "a", value: 1}, {key: "b", value: 2}, {key: "c", value: 3}
+// ["a", 1], ["b", 2], ["c", 3]
 ```
 
 ### RangeIterator
