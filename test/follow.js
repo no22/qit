@@ -104,4 +104,44 @@ describe("FollowIterator", function(){
     (typeof seq.head(3)).should.eql('undefined');
     seq.toArray().should.eql([1,2,3,4,5,6,7,8,9,10]);
   });
+  it("flatten sequences.", function(){
+    var seq1to2 = qit(1, inc).take(2);
+    var seq3to5 = qit(3, inc).take(3);
+    var seq6to7 = qit(6, inc).take(2);
+    var seq8to10 = qit(8, inc).take(3);
+    var seq = qit([seq1to2,seq3to5,seq6to7,seq8to10]);
+    seq.flatten().toArray().should.eql([1,2,3,4,5,6,7,8,9,10]);
+  });
+  it("flatMap sequences.", function(){
+    var seq = qit(1, inc).take(3);
+    seq.flatMap(function(e){return [e, e*e]}).toArray().should.eql([1,1,2,4,3,9]);
+  });
+  it("product sequences.", function(){
+    var seq1to3 = qit(1, inc).take(3);
+    var seq4to6 = qit(4, inc).take(3);
+    var seq7to8 = qit(7, inc).take(2);
+    var seq9to10 = qit(9, inc).take(2);
+    var seq = qit([seq1to3, seq4to6, seq7to8, seq9to10]);
+    seq.product().take(3).toArray().should.eql([[1,4,7,9],[1,4,7,10],[1,4,8,9]]);
+  });
+  it("find sequences.", function(){
+    var seq = qit(1, inc).take(10);
+    seq.find(function(e){return e === 3;}).should.eql(3);
+  });
+  it("every sequences.", function(){
+    var seq = qit(1, inc).take(10);
+    seq.every(function(e){return e === 1;}).should.eql(false);
+  });
+  it("some sequences.", function(){
+    var seq = qit(1, inc).take(10);
+    seq.some(function(e){return e === 4;}).should.eql(true);
+  });
+  it("includes sequences.", function(){
+    var seq = qit(1, inc).take(10);
+    seq.includes(4).should.eql(true);
+  });
+  it("chunked and flatten sequences.", function(){
+    var seq = qit(1, inc).take(10);
+    seq.chunk(3).flatten().toArray().should.eql([1,2,3,4,5,6,7,8,9,10]);
+  });
 });

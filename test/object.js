@@ -139,4 +139,38 @@ describe("ObjectIterator", function(){
       ["baz", 3]
     ]);
   });
+  it("flatten sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.flatten().toArray().should.eql([
+      "foo", 1, "bar", 2, "baz", 3
+    ]);
+  });
+  it("flatMap sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.flatMap(function(e){return [e[1], e[1]*e[1]]}).toArray().should.eql([1,1,2,4,3,9]);
+  });
+  it("product sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.product().take(3).toArray().should.eql([['foo','bar','baz'],['foo','bar',3],['foo',2,'baz']]);
+  });
+  it("find sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.find(function(e){return e[1] === 3;}).should.eql(['baz',3]);
+  });
+  it("every sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.every(function(e){return e[1] === 1;}).should.eql(false);
+  });
+  it("some sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.some(function(e){return e[1] === 2;}).should.eql(true);
+  });
+  it("includes sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.includes(['bar',2]).should.eql(false);
+  });
+  it("chunked and flatten sequences.", function(){
+    var seq = qit({foo: 1, bar: 2, baz: 3});
+    seq.flatten().chunk(3).flatten().toArray().should.eql(['foo',1,'bar',2,'baz',3]);
+  });
 });

@@ -5,11 +5,11 @@
  * providing lazy operations on iterator/generator
  * compatible with ES6 iterator protocol.
  *
- * @version 0.9.1
- * @author Hiroyuki OHARA <Hiroyuki.no22@gmail.com>
+ * @version 1.0.0
+ * @author OHARA Hiroyuki <Hiroyuki.no22@gmail.com>
  * @see https://github.com/no22/qit
  */
-/*! qit.js v0.9.1 (c) 2015 Hiroyuki OHARA @license MIT */
+/*! qit.js v1.0.0 (c) 2015-2019 OHARA Hiroyuki @license MIT */
 (function (root, globalName, factory) {
   if (typeof define === "function" && define.amd) {
     define([], factory);
@@ -55,6 +55,8 @@
     var k, proto = klass.prototype;
     for (k in obj) proto[k] = obj[k];
   }
+
+  function StopChunkIteration(){}
 
   function qit(iter, func, last) {
     return new Iterator(iter, func, last);
@@ -153,10 +155,59 @@
     zipLongest: function(iters) { return new ZipIterator([this].concat(slice.call(arguments)),undefined,true); },
     cycle: function() { return new CycleIterator(this); },
     buffered: function(n) { return new BufferedIterator(this, n); },
-    chunk: function(n) { return new ChunkIterator(this, n); }
+    chunk: function(n) {
+      var self = this, 
+        iters = Array.apply(null, Array(n)).map(function(){
+          return self;
+        }); 
+      return new ZipIterator(iters, undefined, true, StopChunkIteration).map(function(arr){
+        return qit(arr).takeWhile(function(e){
+          return e !== StopChunkIteration;
+        });
+      }); 
+    },
+    flatten: function() { return new FlattenIterator(this); },
+    flatMap: function(func) { return this.map(func).flatten(); },
+    product: function(asIter){
+      var prd = this.reduce(function(a,b) {
+        return qit(a).flatMap(function(x){
+            return qit(b).map(function(y){
+                return qit(x).concat([y]);
+            });
+		    });
+      }, [[]]);
+      if (asIter) return prd;
+      return prd.map(function(it){
+        return it.toArray();
+      });
+    },
+    find: function(func) {
+      var e;
+      while(e = this.next(), !e.done) {
+        if (func(e.value)) return e.value;
+      }
+		  return undefined;
+    }, 
+    every: function(func) {
+      var e;
+      while(e = this.next(), !e.done) {
+        if(!func(e.value)) return false;
+      }
+      return true;
+    },
+    some: function(func) {
+      var e;
+      while(e = this.next(), !e.done) {
+        if(func(e.value)) return true;
+      }
+      return false;
+    },
+    includes: function(val) {
+      return this.some(function(e) {
+        return e === val;
+      });
+    }
   });
-
-  if (qoo) qoo.classify(Iterator);
 
   // String Iterator
   function StringIterator(str) {
@@ -454,10 +505,11 @@
   });
 
   // Zip Iterator
-  function ZipIterator(iters, func, longest) {
+  function ZipIterator(iters, func, longest, fillvalue) {
     this.iters = _iters(iters);
     this.func = func;
     this.longest = longest;
+    this.fillvalue = fillvalue === undefined ? null : fillvalue ;
     this.rewind();
   }
 
@@ -479,7 +531,7 @@
             this.finished = true;
             return e;
           }
-          e.value = null;
+          e.value = this.fillvalue;
         }
         args.push(e.value);
       }
@@ -539,28 +591,34 @@
     }
   });
 
-  // Chunk Iterator
-  function ChunkIterator(iter, len) {
+  // Flatten Iterator
+  function FlattenIterator(iter) {
     this.iter = iter;
-    this.len = len;
+    this.rewind();
   }
 
-  inherit(ChunkIterator, Iterator, {
+  inherit(FlattenIterator, Iterator, {
+    rewind: function() {
+      this.currentIter = null;
+      return FlattenIterator._super_.rewind.call(this);
+    },
     next: function() {
-      if (this.finished || this.iter.finished) {
-        this.finished = true;
-        return {done: true};
-      }
-      var e, it = (new LimitIterator(this.iter, 0, this.len, true)).buffered(1);
-      e = it.head();
-      if (e.done) {
-        this.finished = true;
-        return {done: true};
-      }
-      return {value: it, done: false};
+      do {
+        if (!this.currentIter) {
+          var curr = this.iter.next();
+          if (curr.done) {
+            this.finished = true;
+            return {done: true};
+          }
+          this.currentIter = new Iterator(curr.value);
+        }
+        var e = this.currentIter.next();
+        if (!e.done) return e;
+        this.currentIter = null;
+      } while(true);
     }
   });
-
+  
   qit.isPlainObject = isPlainObject;
   qit.Iterator = Iterator;
   qit.StringIterator = StringIterator;
@@ -578,7 +636,7 @@
   qit.ZipIterator = ZipIterator;
   qit.CycleIterator = CycleIterator;
   qit.BufferedIterator = BufferedIterator;
-  qit.ChunkIterator = ChunkIterator;
+  qit.FlattenIterator = FlattenIterator;
   qit.Symbol = symb;
 
   return qit;

@@ -103,4 +103,39 @@ describe("StringIterator", function(){
     (typeof seq.head(3)).should.eql('undefined');
     seq.toArray().should.eql(["a","b","c","d","e","f"]);
   });
+  it("flatten sequences.", function(){
+    var seq1 = qit('abc');
+    var seq2 = qit('de');
+    var seq3 = qit('fg');
+    var seq = qit([seq1,seq2,seq3]);
+    seq.flatten().toArray().should.eql(["a","b","c","d","e","f","g"]);
+  });
+  it("flatMap sequences.", function(){
+    var seq = qit('abc');
+    seq.flatMap(function(e){return [e, e+e]}).toArray().should.eql(['a','aa','b','bb','c','cc']);
+  });
+  it("product sequences.", function(){
+    var seq = qit([qit("123"), qit("456"), qit("78"), qit("90")]);
+    seq.product().take(3).toArray().should.eql([['1','4','7','9'],['1','4','7','0'],['1','4','8','9']]);
+  });
+  it("find sequences.", function(){
+    var seq = qit("abcdefg");
+    seq.find(function(e){return e === 'd';}).should.eql('d');
+  });
+  it("every sequences.", function(){
+    var seq = qit("abcdefg");
+    seq.every(function(e){return e === 'a';}).should.eql(false);
+  });
+  it("some sequences.", function(){
+    var seq = qit("abcdefg");
+    seq.some(function(e){return e === 'c';}).should.eql(true);
+  });
+  it("includes sequences.", function(){
+    var seq = qit("abcdefg");
+    seq.includes('c').should.eql(true);
+  });
+  it("chunked and flatten sequences.", function(){
+    var seq = qit("abcdefg");
+    seq.chunk(3).flatten().toArray().should.eql(["a","b","c","d","e","f","g"]);
+  });
 });

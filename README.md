@@ -267,6 +267,27 @@ console.log(it.toArray());
 // [10,9,8,7,6,5,4,3,2,1]
 ```
 
+#### flatten (v1.0.0)
+```javascript
+// .flatten()
+qit([1,2,3,[4,5,6],[7,[8,9]]]).flatten().toArray();
+// [1,2,3,4,5,6,7,[8,9]]
+```
+
+#### flatMap (v1.0.0)
+```javascript
+// .flatMap(func)
+qit([1,2,3]).flatMap(function(e){return [e, e*e]}).toArray();
+// [1,2,2,4,3,9]
+```
+
+#### product (v1.0.0)
+```javascript
+// .product(return_as_iterator)
+qit([[1,2,3],[4,5,6],[7,8],[9,10]]).product().take(3).toArray();
+// [[1,4,7,9],[1,4,7,10],[1,4,8,9]]
+```
+
 ### Eager methods
 
 #### each
@@ -301,7 +322,34 @@ qit(1,10).toArray();
 // [1,2,3,4,5,6,7,8,9,10]
 ```
 
+### find (v1.0.0)
+```javascript
+// .find(func)
+qit([1,2,3]).find(function(e){ return e === 2 ;});
+// 2
+```
+### every (v1.0.0)
+```javascript
+// .every(func)
+qit([1,2,1]).every(function(e){ return e === 1 ;});
+// false
+```
+
+### some (v1.0.0)
+```javascript
+// .some(func)
+qit([1,2,1]).some(function(e){ return e === 2 ;});
+// true
+```
+
+### includes (v1.0.0)
+```javascript
+// .includes(value)
+qit([1,2,1]).includes(2);
+// true
+```
+
 License
 ----------------------------------------------------------------------
 
-Copyright (c) 2015 Hiroyuki OHARA Licensed under the MIT license.
+Copyright (c) 2015-2019 OHARA Hiroyuki Licensed under the MIT license.
